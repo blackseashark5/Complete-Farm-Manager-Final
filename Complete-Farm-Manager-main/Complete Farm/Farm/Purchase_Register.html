@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Purchase Register</title>
+    <style>
+        /* Body Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+            margin: 0;
+        }
+
+        /* Heading Styling */
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #fff;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f8f8f8;
+        }
+
+        /* Button Styling */
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Input Styling */
+        input[type="text"], input[type="number"], input[type="date"] {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 0;
+        }
+
+        /* Responsive Table */
+        @media (max-width: 768px) {
+            table, th, td {
+                font-size: 12px;
+            }
+        }
+
+        /* Logo Styling */
+        .logo {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 100px;
+            height: auto;
+        }
+
+        /* Footer Styling */
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 14px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SRM Logo -->
+    <img src="srm-logo.svg" alt="SRM Logo" class="logo">
+
+    <!-- Heading of the Page -->
+    <h1>Purchase Register</h1>
+
+    <!-- Purchase Register Table -->
+    <table id="purchase-register">
+        <thead>
+            <tr>
+                <th>Sr. No.</th>
+                <th>Date</th>
+                <th>Supplier Name</th>
+                <th>Material Description</th>
+                <th>Quantity(litre,kgs)</th>
+                <th>Rate(Rs)</th>
+                <th>Unit</th>
+                <th>Amount(Rs)</th>
+                <th>COE</th>
+                <th>PAY NO</th>
+                <th>Name of the Building</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="register-body">
+            <!-- Dynamic rows will be added here -->
+        </tbody>
+    </table>
+
+    <!-- Add New Entry Button -->
+    <button id="add-entry-btn">Add New Entry</button>
+
+    <!-- Export CSV Button -->
+    <button id="export-csv-btn">Export CSV</button>
+
+    <!-- Footer -->
+    <div class="footer">
+        Done by- Ranveer, Aryan, Hemanth, Srishti under guidance of Dr. Nagamalleshwari and Dr. Ushasukhanya
+    </div>
+
+    <script>
+        // Global variable to track the number of entries
+        let entryCount = 1;
+
+        // Add event listener to the "Add New Entry" button
+        document.getElementById('add-entry-btn').addEventListener('click', addEntry);
+
+        // Add event listener to the "Export CSV" button
+        document.getElementById('export-csv-btn').addEventListener('click', exportCSV);
+
+        // Function to add a new entry row
+        function addEntry() {
+            // Get the table body element where new rows will be added
+            const tbody = document.getElementById('register-body');
+
+            // Create a new table row element
+            const row = document.createElement('tr');
+
+            // Set the HTML content of the row with input fields
+            row.innerHTML = `
+                <td>${entryCount++}</td>
+                <td><input type="date" name="date"></td>
+                <td><input type="text" name="supplier"></td>
+                <td><input type="text" name="description"></td>
+                <td><input type="number" name="quantity" step="1"></td>
+                <td><input type="number" name="rate" step="0.01"></td>
+                <td><input type="text" name="unit"></td>
+                <td><input type="number" name="amount" step="0.01" readonly></td>
+                <td><input type="text" name="coe"></td>
+                <td><input type="text" name="payno"></td>
+                <td><input type="text" name="building"></td>
+                <td><button class="delete-btn">Delete</button></td>
+            `;
+
+            // Append the new row to the table body
+            tbody.appendChild(row);
+
+            // Get references to the quantity, rate, and amount input fields
+            const quantityInput = row.querySelector('input[name="quantity"]');
+            const rateInput = row.querySelector('input[name="rate"]');
+            const amountInput = row.querySelector('input[name="amount"]');
+            const deleteBtn = row.querySelector('.delete-btn');
+
+            // Add event listeners to update the amount when quantity or rate changes
+            quantityInput.addEventListener('input', updateAmount);
+            rateInput.addEventListener('input', updateAmount);
+
+            // Add event listener to delete the row when the delete button is clicked
+            deleteBtn.addEventListener('click', () => {
+                tbody.removeChild(row);
+                entryCount--;
+                updateRowNumbers();
+            });
+
+            // Function to update the amount based on quantity and rate
+            function updateAmount() {
+                const quantity = parseFloat(quantityInput.value) || 0;
+                const rate = parseFloat(rateInput.value) || 0;
+                amountInput.value = (quantity * rate).toFixed(2);
+            }
+        }
+
+        // Function to update row numbers after deletion
+        function updateRowNumbers() {
+            const rows = document.querySelectorAll('#register-body tr');
+            let count = 1;
+            rows.forEach(row => {
+                row.cells[0].innerText = count++;
+            });
+        }
+
+        // Function to export table data as CSV
+        function exportCSV() {
+            const rows = document.querySelectorAll("#purchase-register tr");
+            let csv = [];
+
+            rows.forEach(row => {
+                const cols = row.querySelectorAll("td input, th");
+                let rowData = [];
+                cols.forEach(col => {
+                    rowData.push(col.value ? col.value : col.innerText);
+                });
+                csv.push(rowData.join(","));
+            });
+
+            const csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
+            const downloadLink = document.createElement("a");
+            downloadLink.download = "purchase_register.csv";
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+
+        // Function to handle page load
+        function onLoad() {
+            // Optional: Prepopulate the table with one entry
+            addEntry();
+        }
+
+        // Call the onLoad function when the page is loaded
+        window.onload = onLoad;
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRM Programme Form</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 2px solid #000;
+            position: relative;
+        }
+        .header {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        .add-row-btn, .export-csv-btn {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        .add-row-btn:hover, .export-csv-btn:hover {
+            background-color: #45a049;
+        }
+        .logo {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 100px;
+            height: auto;
+        }
+        /* Footer Styling */
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 14px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <!-- SRM Logo -->
+        <img src="srm-logo.svg" alt="SRM Logo" class="logo">
+
+        <div class="header">
+            <p>SRM COLLEGE OF AGRICULTURAL SCIENCES - SRM IST</p>
+            <p>Department of Agronomy</p>
+            <p>Programme and Allocation</p>
+        </div>
+        <table id="programmeTable">
+            <thead>
+                <tr>
+                    <th>Field Number</th>
+                    <th>Area</th>
+                    <th>Crop</th>
+                    <th>Details of Operations</th>
+                    <th>Tr. Dr. M @ Rs.</th>
+                    <th>AM M @ Rs.</th>
+                    <th>AM W @ Rs.</th>
+                    <th>H M @ Rs.</th>
+                    <th>H W @ Rs.</th>
+                    <th>DRCLR M @ Rs.</th>
+                    <th>DRCLR W @ Rs.</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Dynamic rows will be added here -->
+            </tbody>
+        </table>
+
+        <button class="add-row-btn" onclick="addRow()">Add Row</button>
+        <button class="export-csv-btn" onclick="exportCSV()">Export CSV</button>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        Done by- Ranveer, Aryan, Hemanth, Srishti under guidance of Dr. Nagamalleshwari and Dr. Ushasukhanya
+    </div>
+
+    <script>
+        function addRow() {
+            const tableBody = document.getElementById('tableBody');
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td><input type="text" placeholder="Field Number"></td>
+                <td><input type="text" placeholder="Area"></td>
+                <td><input type="text" placeholder="Crop"></td>
+                <td><input type="text" placeholder="Details of Operations"></td>
+                <td><input type="number" placeholder="Tr. Dr. M @ Rs."></td>
+                <td><input type="number" placeholder="Tr. Dr. W @ Rs."></td>
+                <td><input type="number" placeholder="AM M @ Rs."></td>
+                <td><input type="number" placeholder="AM W @ Rs."></td>
+                <td><input type="number" placeholder="H M @ Rs."></td>
+                <td><input type="number" placeholder="H W @ Rs."></td>
+                <td><input type="number" placeholder="DRCLR M @ Rs."></td>
+                <td><input type="number" placeholder="DRCLR W @ Rs."></td>
+            `;
+
+            tableBody.appendChild(row);
+        }
+
+        function exportCSV() {
+            const rows = document.querySelectorAll("#programmeTable tr");
+            let csv = [];
+
+            rows.forEach(row => {
+                const cols = row.querySelectorAll("td input, th");
+                let rowData = [];
+                cols.forEach(col => {
+                    rowData.push(col.value ? col.value : col.innerText);
+                });
+                csv.push(rowData.join(","));
+            });
+
+            const csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
+            const downloadLink = document.createElement("a");
+            downloadLink.download = "programme_data.csv";
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+
+        // Add an initial row when the page loads
+        window.onload = function() {
+            addRow();
+        };
+    </script>
+
+</body>
+</html>

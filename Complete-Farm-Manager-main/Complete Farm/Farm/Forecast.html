@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRM Forecast Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 2px solid #000;
+        }
+        .header {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .header img {
+            width: 100px; /* Adjust logo size */
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        .add-row-btn, .export-csv-btn {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        .add-row-btn:hover, .export-csv-btn:hover {
+            background-color: #45a049;
+        }
+        /* Footer Styling */
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 14px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <div class="header">
+            <!-- SRM Logo -->
+            <img src="srm-logo.svg" alt="SRM Logo">
+            <p>SRM COLLEGE OF AGRICULTURAL SCIENCES - SRM IST</p>
+            <p>Department of Agronomy</p>
+            <p>Forecast and Allocation</p>
+        </div>
+
+        <table id="forecastTable">
+            <thead>
+                <tr>
+                    <th>Field Number</th>
+                    <th>Area</th>
+                    <th>Crop</th>
+                    <th>Details of Operations</th>
+                    <th>Men</th>
+                    <th>Women</th>
+                    <th>Total</th>
+                    <th>Name of Forecaster</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Rows will be added dynamically here -->
+            </tbody>
+        </table>
+
+        <button class="add-row-btn" onclick="addRow()">Add Row</button>
+        <button class="export-csv-btn" onclick="exportCSV()">Export CSV</button>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        Done by- Ranveer, Aryan, Hemanth, Srishti under guidance of Dr. Nagamalleshwari and Dr. Ushasukhanya
+    </div>
+
+    <script>
+        function addRow() {
+            const tableBody = document.getElementById('tableBody');
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td><input type="text" placeholder="Field Number"></td>
+                <td><input type="text" placeholder="Area"></td>
+                <td><input type="text" placeholder="Crop"></td>
+                <td><input type="text" placeholder="Details of Operations"></td>
+                <td><input type="number" placeholder="Men" oninput="calculateTotal(this)"></td>
+                <td><input type="number" placeholder="Women" oninput="calculateTotal(this)"></td>
+                <td><input type="number" placeholder="Total" readonly></td>
+                <td><input type="text" placeholder="Sign"></td>
+            `;
+
+            tableBody.appendChild(row);
+        }
+
+        function calculateTotal(element) {
+            const row = element.parentElement.parentElement;
+            const men = parseInt(row.querySelector('input[placeholder="Men"]').value) || 0;
+            const women = parseInt(row.querySelector('input[placeholder="Women"]').value) || 0;
+            const total = men + women;
+            row.querySelector('input[placeholder="Total"]').value = total;
+        }
+
+        function exportCSV() {
+            const rows = document.querySelectorAll("#forecastTable tr");
+            let csv = [];
+
+            rows.forEach(row => {
+                const cols = row.querySelectorAll("td input, th");
+                let rowData = [];
+                cols.forEach(col => {
+                    rowData.push(col.value ? col.value : col.innerText);
+                });
+                csv.push(rowData.join(","));
+            });
+
+            const csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
+            const downloadLink = document.createElement("a");
+            downloadLink.download = "forecast_data.csv";
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+
+        // Add an initial row when the page loads
+        window.onload = function() {
+            addRow();
+        };
+    </script>
+
+</body>
+</html>
